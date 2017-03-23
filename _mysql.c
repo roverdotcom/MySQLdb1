@@ -668,6 +668,10 @@ _mysql_ConnectionObject_Initialize(
 		mysql_options(&(self->connection), MYSQL_OPT_LOCAL_INFILE, (char *) &local_infile);
 
 #if HAVE_OPENSSL
+    /* Force the client to disable connections */
+    unsigned int ssl_mode_disabled = SSL_MODE_DISABLED;
+    mysql_options(&(self->connection), MYSQL_OPT_SSL_MODE, (char *) &ssl_mode_disabled);
+
 	if (ssl)
 		mysql_ssl_set(&(self->connection),
 			      key, cert, ca, capath, cipher);

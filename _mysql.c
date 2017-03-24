@@ -670,7 +670,7 @@ _mysql_ConnectionObject_Initialize(
 
 #if HAVE_OPENSSL
 #if MYSQL_VERSION_ID >= 50711
-	/* Force the client to disable connections */
+	/* Force the client to disable SSL connections */
 	unsigned int ssl_mode_disabled = SSL_MODE_DISABLED;
 	mysql_options(&(self->connection), MYSQL_OPT_SSL_MODE, (char *) &ssl_mode_disabled);
 #endif

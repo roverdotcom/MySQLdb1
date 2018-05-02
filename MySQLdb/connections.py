@@ -136,6 +136,9 @@ class Connection(_mysql.connection):
           (mysql_ssl_set()).  If this is set, and the client does not
           support SSL, NotSupportedError will be raised.
 
+        disable_ssl
+          integer, 1 to disable SSL; 0 otherwise
+
         local_infile
           integer, non-zero enables LOAD LOCAL INFILE; zero disables
 
@@ -189,6 +192,8 @@ class Connection(_mysql.connection):
 
         # PEP-249 requires autocommit to be initially off
         autocommit = kwargs2.pop('autocommit', False)
+
+        kwargs2.setdefault('disable_ssl', 0)
 
         super(Connection, self).__init__(*args, **kwargs2)
         self.cursorclass = cursorclass

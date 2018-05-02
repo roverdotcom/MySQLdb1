@@ -559,12 +559,13 @@ _mysql_ConnectionObject_Initialize(
 		*db = NULL, *unix_socket = NULL;
 	unsigned int port = 0;
 	unsigned int client_flag = 0;
+        unsigned int disable_ssl;
 	static char *kwlist[] = { "host", "user", "passwd", "db", "port",
 				  "unix_socket", "conv",
 				  "connect_timeout", "compress",
 				  "named_pipe", "init_command",
 				  "read_default_file", "read_default_group",
-				  "client_flag", "ssl",
+				  "client_flag", "ssl", "disable_ssl",
 				  "local_infile",
 #ifdef HAVE_MYSQL_OPT_TIMEOUTS
                                   "read_timeout",
@@ -580,16 +581,16 @@ _mysql_ConnectionObject_Initialize(
 	char *init_command=NULL,
 	     *read_default_file=NULL,
 	     *read_default_group=NULL;
-	
+
 	self->converter = NULL;
 	self->open = 0;
 	check_server_init(-1);
 
 	if (!PyArg_ParseTupleAndKeywords(args, kwargs,
 #ifdef HAVE_MYSQL_OPT_TIMEOUTS
-                                         "|ssssisOiiisssiOiii:connect",
+                                         "|ssssisOiiisssiOiiii:connect",
 #else
-                                         "|ssssisOiiisssiOi:connect",
+                                         "|ssssisOiiisssiOii:connect",
 #endif
 					 kwlist,
 					 &host, &user, &passwd, &db,
@@ -599,6 +600,7 @@ _mysql_ConnectionObject_Initialize(
 					 &init_command, &read_default_file,
 					 &read_default_group,
 					 &client_flag, &ssl,
+                                         &disable_ssl,
                      &local_infile
 #ifdef HAVE_MYSQL_OPT_TIMEOUTS
                      , &read_timeout
@@ -667,12 +669,13 @@ _mysql_ConnectionObject_Initialize(
 	if (local_infile != -1)
 		mysql_options(&(self->connection), MYSQL_OPT_LOCAL_INFILE, (char *) &local_infile);
 
-
 #if HAVE_OPENSSL
 #if MYSQL_VERSION_ID >= 50711
-	/* Force the client to disable SSL connections */
-	unsigned int ssl_mode_disabled = SSL_MODE_DISABLED;
-	mysql_options(&(self->connection), MYSQL_OPT_SSL_MODE, (char *) &ssl_mode_disabled);
+        if (disable_ssl) {
+            /* Force the client to disable SSL connections */
+            unsigned int ssl_mode_disabled = SSL_MODE_DISABLED;
+            mysql_options(&(self->connection), MYSQL_OPT_SSL_MODE, (char *) &ssl_mode_disabled);
+        }
 #endif
 
 	if (ssl)
@@ -758,6 +761,9 @@ read_default_group\n\
 \n\
 client_flag\n\
   client flags from MySQLdb.constants.CLIENT\n\
+\n\
+disable_ssl\n\
+  integer, 1 to disable SSL; 0 otherwise\n\
 \n\
 load_infile\n\
   int, non-zero enables LOAD LOCAL INFILE, zero disables\n\

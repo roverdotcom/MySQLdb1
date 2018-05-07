@@ -193,7 +193,7 @@ class Connection(_mysql.connection):
         # PEP-249 requires autocommit to be initially off
         autocommit = kwargs2.pop('autocommit', False)
 
-        kwargs2.setdefault('disable_ssl', 0)
+        kwargs2.setdefault('disable_ssl', 1)
 
         super(Connection, self).__init__(*args, **kwargs2)
         self.cursorclass = cursorclass
